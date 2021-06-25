@@ -8,6 +8,7 @@ import { Audio } from 'expo-av';
 import ConfigPicker from './ConfigPicker';
 
 const corsUrl = 'https://api.rss2json.com/v1/api.json?rss_url=';
+const apiKey = '&api_key=mi1xzkzcn9vou9wseasgsy5gi0oomaaq9oolva6c&count=100';
 
 const israelNewsOptions = [
   {name: '', value: ''},
@@ -57,10 +58,16 @@ const App = () => {
   const [disableSpeak, setDisableSpeak] = useState(true);
   const [disableStop, setDisableStop] = useState(true);
   const [disableNext, setDisableNext] = useState(true);
+  const [disablePause, setDisablePause] = useState(true);
  
   const readRss = async () => {
+    speakStop();
+    setDisableSpeak(true);
+    setDisableNext(true);
+    setDisablePause(true);
+    setDisableStop(true);
     setLoading(true);
-    const {data} = await axios.get(`${corsUrl}${url}`);
+    const {data} = await axios.get(`${corsUrl}${url}${apiKey}`);
     setRss(data);
     setLoading(false);
     setDisableSpeak(false);
@@ -94,6 +101,7 @@ const App = () => {
       Speech.speak('Это все новости.', voiceOption);
       setDisableSpeak(false);
       setDisableNext(true);
+      setDisablePause(true);
       setDisableStop(true);
       window.newCounter = 0;
     }
@@ -105,6 +113,7 @@ const App = () => {
   const speakNews = () => {
     setDisableSpeak(true);
     setDisableNext(false);
+    setDisablePause(false);
     setDisableStop(false);
     speakNewsTitle();
   }
@@ -115,10 +124,19 @@ const App = () => {
     speakNewsTitle();
   }
 
+  const speakPause = () => {
+    Speech.stop();
+    setDisableSpeak(false);
+    setDisableNext(true);
+    setDisablePause(true);
+    setDisableStop(false);
+  }
+
   const speakStop = () => {
     Speech.stop();
     setDisableSpeak(false);
     setDisableNext(true);
+    setDisablePause(true);
     setDisableStop(true);
     window.newCounter = 0;
   }
@@ -138,6 +156,7 @@ const App = () => {
       <View style={styles.container1}>
         <Button onPress={speakNews} disabled={disableSpeak} title='Прослушать' />
         <Button onPress={speakNext} disabled={disableNext} title='Следущая' />
+        <Button onPress={speakPause} disabled={disablePause} title='Пауза' />
         <Button onPress={speakStop} disabled={disableStop} title='Стоп' />
       </View>
       <StatusBar style="auto" />
